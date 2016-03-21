@@ -144,7 +144,8 @@
 	 *
 	 * @param yData : array of y variables.
 	 * @param xData : array of x variables.
-	 * @param periods : The amount of "days" to average from.
+	 * @param periods : An optional array of the MACD periods in the order
+     * [shortPeriod, longPeriod, signalPeriod ]
 	 * @return : An array with 3 arrays. (0 : macd, 1 : signalline , 2 : histogram) 
 	**/
 	function calcMACD (xData, yData, periods) {
@@ -162,13 +163,13 @@
 			histogram = [];
         if (Array.isArray(periods)) {
             if (periods.length >= 1) {
-                shortPeriod = periods[0];
+                shortPeriod = periods[0] || 12;
             }
             if (periods.length >= 2) {
-                longPeriod = periods[1];
+                longPeriod = periods[1] || 26;
             }
             if (periods.length >=3 ) {
-                signalPeriod = periods[2];
+                signalPeriod = periods[2] || 9;
             }
         }
 		// Calculating the short and long EMA used when calculating the MACD

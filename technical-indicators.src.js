@@ -80,6 +80,13 @@
 			return EMA(xData, yData, periods);
 		}, 
 
+        /* Function using the global RSI function.
+         *
+         * @return: an array of RSI data.
+        **/
+        RSI: function (xData, yData, periods) {
+            return RSI(xData, yData, periods);
+        },
 		/* Function that uses the global linear function.
 		 *
 		 * @return : an array of EMA data
@@ -377,6 +384,74 @@
 		}
 		return smLine;
 	}
+
+	/* Function based on the idea of Relative Strength Index.
+	 * @param yData : array of y variables.
+	 * @param xData : array of x variables.
+	 * @param periods : The amount of "days" to calculate for.
+	 * @return an array containing the RSI.
+	**/
+    function RSI (xData, yData, periods) {
+        var periodArr = [],
+            rsiLine = [],
+            length = yData.length,
+            pointStart = xData[0];
+        var rsiPeriod = periods || 14;
+        var gain = [], loss = [];
+        var prev_gain = -1;
+        var prev_loss = -1;
+        var avg_gain = -1;
+        var avg_loss = -1;
+		// Loop through the entire array.
+        for (var i = 0; i < length; ++i) {
+			// add points to the array.
+            periodArr.push(yData[i]);
+			// 1: Check if array is "filled" else create null point in line.
+			// 2: Calculate RSI value.
+			// 3: Remove first value.
+            var curgain = 0, curloss = 0;
+            if (i > 0) {
+                var delta = yData[i] - yData[i - 1];
+                delta = delta.toFixed(6);
+                curgain = delta > 0 ? delta : 0;
+                curloss = delta < 0 ? Math.abs(delta) : 0;
+                if (prev_gain < 0 || prev_loss < 0) {
+                    if (gain.length < rsiPeriod) {
+                        gain.push(curgain);
+                    }
+                    if (loss.length < rsiPeriod) {
+                        loss.push(curloss);
+                    }
+                    if (gain.length == rsiPeriod) {
+                        avg_gain = arrayAvg(gain);
+                    }
+                    if (loss.length == rsiPeriod) {
+                        avg_loss = arrayAvg(loss);
+                    }
+                } else {
+                    avg_gain = (prev_gain * (rsiPeriod - 1) + curgain) / rsiPeriod;
+                    avg_loss = (prev_loss * (rsiPeriod - 1) + curloss) / rsiPeriod;
+                }
+            }
+            if (rsiPeriod == periodArr.length) {
+                var rsival = 0;
+                if (avg_gain == 0) {
+                    rsival = 0;
+                } else if (avg_loss == 0) {
+                    rsival = 100;
+                } else {
+                    rsival = 100 - (100 / (1 + (avg_gain / avg_loss)));
+                }
+                rsiLine.push([ xData[i], rsival]);
+                periodArr.splice(0, 1);
+                prev_gain = avg_gain;
+                prev_loss = avg_loss;
+            } else {
+                rsiLine.push([xData[i], null]);
+            }
+        }
+        return rsiLine;
+    }
 
 	/* Function that returns average of an array's values.
 	 *

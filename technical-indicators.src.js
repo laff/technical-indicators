@@ -160,8 +160,17 @@
 			yMACD = [],
 			signalLine = [],
 			histogram = [];
-
-
+        if (Array.isArray(periods)) {
+            if (periods.length >= 1) {
+                shortPeriod = periods[0];
+            }
+            if (periods.length >= 2) {
+                longPeriod = periods[1];
+            }
+            if (periods.length >=3 ) {
+                signalPeriod = periods[2];
+            }
+        }
 		// Calculating the short and long EMA used when calculating the MACD
 		shortEMA = EMA(xData, yData, shortPeriod);
 		longEMA = EMA(xData, yData, longPeriod);

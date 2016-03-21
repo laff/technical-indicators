@@ -398,10 +398,10 @@
             pointStart = xData[0];
         var rsiPeriod = periods || 14;
         var gain = [], loss = [];
-        var prev_gain = -1;
-        var prev_loss = -1;
-        var avg_gain = -1;
-        var avg_loss = -1;
+        var prevGain = -1;
+        var prevLoss = -1;
+        var avgGain = -1;
+        var avgLoss = -1;
 		// Loop through the entire array.
         for (var i = 0; i < length; ++i) {
 			// add points to the array.
@@ -409,47 +409,56 @@
 			// 1: Check if array is "filled" else create null point in line.
 			// 2: Calculate RSI value.
 			// 3: Remove first value.
-            var curgain = 0, curloss = 0;
             if (i > 0) {
+                var curGain = 0, curLoss = 0;
                 var delta = yData[i] - yData[i - 1];
-                delta = delta.toFixed(6);
-                curgain = delta > 0 ? delta : 0;
-                curloss = delta < 0 ? Math.abs(delta) : 0;
-                if (prev_gain < 0 || prev_loss < 0) {
+                delta = parseFloat(delta.toFixed(6));
+                curGain = delta > 0 ? delta : 0;
+                curLoss = delta < 0 ? Math.abs(delta) : 0;
+                if (prevGain < 0 || prevLoss < 0) {
                     if (gain.length < rsiPeriod) {
-                        gain.push(curgain);
+                        gain.push(curGain);
                     }
                     if (loss.length < rsiPeriod) {
-                        loss.push(curloss);
+                        loss.push(curLoss);
                     }
                     if (gain.length == rsiPeriod) {
-                        avg_gain = arrayAvg(gain);
+                        avgGain = 0;
+                        for (var j = 0; j < gain.length; ++j) {
+                            avgGain += gain[j];
+                        }
+                        avgGain /= rsiPeriod;
                     }
                     if (loss.length == rsiPeriod) {
-                        avg_loss = arrayAvg(loss);
+                        avgLoss = 0;
+                        for (var j = 0; j < loss.length; ++j) {
+                            avgLoss += loss[j];
+                        }
+                        avgLoss /= rsiPeriod;
                     }
                 } else {
-                    avg_gain = (prev_gain * (rsiPeriod - 1) + curgain) / rsiPeriod;
-                    avg_loss = (prev_loss * (rsiPeriod - 1) + curloss) / rsiPeriod;
+                    avgGain = (prevGain * (rsiPeriod - 1) + curGain) / rsiPeriod;
+                    avgLoss = (prevLoss * (rsiPeriod - 1) + curLoss) / rsiPeriod;
                 }
             }
             if (rsiPeriod == periodArr.length) {
-                var rsival = 0;
-                if (avg_gain == 0) {
-                    rsival = 0;
-                } else if (avg_loss == 0) {
-                    rsival = 100;
+                var rsiValue = 0;
+                if (avgGain == 0) {
+                    rsiValue = 0;
+                } else if (avgLoss == 0) {
+                    rsiValue = 100;
                 } else {
-                    rsival = 100 - (100 / (1 + (avg_gain / avg_loss)));
+                    rsiValue = 100 - (100 / (1 + (avgGain / avgLoss)));
                 }
-                rsiLine.push([ xData[i], rsival]);
+                rsiLine.push([ xData[i], rsiValue]);
                 periodArr.splice(0, 1);
-                prev_gain = avg_gain;
-                prev_loss = avg_loss;
+                prevGain = avgGain;
+                prevLoss = avgLoss;
             } else {
                 rsiLine.push([xData[i], null]);
             }
         }
+        console.log(JSON.stringify(rsiLine));
         return rsiLine;
     }
 

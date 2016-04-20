@@ -458,7 +458,7 @@
                 rsiLine.push([xData[i], null]);
             }
         }
-        console.log(JSON.stringify(rsiLine));
+        //console.log(JSON.stringify(rsiLine));
         return rsiLine;
     }
 

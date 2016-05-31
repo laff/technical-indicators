@@ -258,15 +258,17 @@
 		step9 = ((step7 - step8) / step1);
 
 		// Step 10: Plotting the trendline. Only two points are calulated.
-		// The starting point.
-		// This point will have values equal to the first X and Y value in the original dataset.
-		lineData.push([xData[0] , yData[0]]);
+		// Calculating the starting point.
+		// The point X is equal the first X in the original dataset.
+		// The point Y is calculated using the function of a straight line and our variables found.
+		var step10a = ( ( step6 * xData[0] ) + step9 );
+		lineData.push([ ( xData[0] ), step10a ]);
 
 		// Calculating the ending point.
-		// The point X is equal the X in the original dataset.
+		// The point X is equal the last X in the original dataset.
 		// The point Y is calculated using the function of a straight line and our variables found.
-		step10 = ( ( step6 * xData[step1 - 1] ) + step9 );
-		lineData.push([ ( xData[step1 - 1] ), step10 ]);
+		var step10b = ( ( step6 * xData[step1 - 1] ) + step9 );
+		lineData.push([ ( xData[step1 - 1] ), step10b ]);
 
 		return lineData;
 	}

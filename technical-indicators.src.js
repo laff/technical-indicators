@@ -372,9 +372,9 @@
 	 *
 	**/
 	function arrayAvg (arr) {
-	    var sum = 0,
-	        arrLengthOfNonNullValues = 0,
-	        i = arr.length;
+	    	var sum = 0,
+	        	arrLengthOfNonNullValues = 0,
+	        	i = arr.length;
 	   	        
 		while (i--) {
 			sum = sum + arr[i];

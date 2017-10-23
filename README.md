@@ -1,5 +1,10 @@
 technical-indicators
 ====================
+
+# ⛔️ DEPRECATED
+This plugin is no longer maintained. Since v6.0, technical indicators are an [integrated part of Highstock](https://www.highcharts.com/docs/chart-and-series-types/technical-indicator-series). 
+
+______________________________
 This a Highcharts-plugin that allows the user to add technical indicators to their charts.
 
 The contents of the plugin is located in the javascript file "technical-indicators.src.js". 

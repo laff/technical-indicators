@@ -18,7 +18,7 @@
 	});
 
 	seriesTypes.trendline = H.extendClass(seriesTypes.line, {
-		
+
 		type: 'trendline',
 		animate: null,
 		requiresSorting: false,
@@ -44,7 +44,7 @@
 
 
 		/* Function that uses the calcMACD function to return the MACD line.
-		 * 
+		 *
 		 * @return : the first index of the calcMACD return, the MACD.
 		**/
 		MACD: function (xData, yData, periods) {
@@ -53,7 +53,7 @@
 		},
 
 		/* Function that uses the global calcMACD.
-		 * 
+		 *
 		 * @return : the second index of the calcMACD return, the signalLine.
 		**/
 		signalLine: function (xData, yData, periods) {
@@ -62,7 +62,7 @@
 		},
 
 		/* Function using the global SMA function.
-		 * 
+		 *
 		 * @return : an array of SMA data.
 		**/
 		SMA: function (xData, yData, periods) {
@@ -70,15 +70,23 @@
 			return SMA(xData, yData, periods);
 		},
 
+    /* Function using the global CMA function.
+     *
+     * @return : an array of CMA data.
+    **/
+    CMA: function (xData, yData) {
+
+      return CMA(xData, yData);
+    },
 
 		/* Function using the global EMA function.
-		 * 
+		 *
 		 * @return : an array of EMA data.
 		**/
 		EMA: function (xData, yData, periods) {
 
 			return EMA(xData, yData, periods);
-		}, 
+		},
 
 		/* Function that uses the global linear function.
 		 *
@@ -104,7 +112,7 @@
 
 
 	seriesTypes.histogram = H.extendClass(seriesTypes.column, {
-		
+
 		type: 'histogram',
 		animate: null,
 		requiresSorting: false,
@@ -145,7 +153,7 @@
 	 * @param yData : array of y variables.
 	 * @param xData : array of x variables.
 	 * @param periods : The amount of "days" to average from.
-	 * @return : An array with 3 arrays. (0 : macd, 1 : signalline , 2 : histogram) 
+	 * @return : An array with 3 arrays. (0 : macd, 1 : signalline , 2 : histogram)
 	**/
 	function calcMACD (xData, yData, periods) {
 
@@ -155,7 +163,7 @@
 			signalPeriod = 9,
 			shortEMA,
 			longEMA,
-			MACD = [], 
+			MACD = [],
 			xMACD = [],
 			yMACD = [],
 			signalLine = [],
@@ -193,7 +201,7 @@
 			if (MACD[i][1] == null) {
 
 				histogram.push( [ MACD[i][0], null ] );
-			
+
 			} else {
 
 				histogram.push( [ MACD[i][0], (MACD[i][1] - signalLine[i][1]) ] );
@@ -206,12 +214,12 @@
 
 	/**
 	 * Calculating a linear trendline.
-	 * The idea of a trendline is to reveal a linear relationship between 
+	 * The idea of a trendline is to reveal a linear relationship between
 	 * two variables, x and y, in the "y = mx + b" form.
 	 * @param yData : array of y variables.
 	 * @param xData : array of x variables.
 	 * @param periods : Only here for overloading purposes.
-	 * @return an array containing the linear trendline. 
+	 * @return an array containing the linear trendline.
 	**/
 	function linear (xData, yData, periods) {
 
@@ -273,14 +281,14 @@
 
 
 	/* Function based on the idea of an exponential moving average.
-	 * 
+	 *
 	 * Formula: EMA = Price(t) * k + EMA(y) * (1 - k)
 	 * t = today, y = yesterday, N = number of days in EMA, k = 2/(2N+1)
 	 *
 	 * @param yData : array of y variables.
 	 * @param xData : array of x variables.
 	 * @param periods : The amount of "days" to average from.
-	 * @return an array containing the EMA.	
+	 * @return an array containing the EMA.
 	**/
 	function EMA (xData, yData, periods) {
 
@@ -302,7 +310,7 @@
 			if (yData[i-1]) {
 				periodArr.push(yData[i]);
 			}
-			
+
 
 			// 0: runs if the periodArr has enough points.
 			// 1: set currentvalue (today).
@@ -339,7 +347,7 @@
 	 * @param yData : array of y variables.
 	 * @param xData : array of x variables.
 	 * @param periods : The amount of "days" to average from.
-	 * @return an array containing the SMA.	
+	 * @return an array containing the SMA.
 	**/
 	function SMA (xData, yData, periods) {
 		var periodArr = [],
@@ -367,6 +375,28 @@
 		}
 		return smLine;
 	}
+
+  /* Function based on the idea of a cumulative moving average.
+   * @param yData : array of y variables.
+   * @param xData : array of x variables.
+   * @return an array containing the CMA.
+  **/
+  function CMA (xData, yData) {
+    var periodArr = [],
+      smLine = [],
+      length = yData.length;
+
+    // Loop through the entire array.
+    for (var i = 0; i < length; i++) {
+
+      // add points to the array.
+      periodArr.push(yData[i]);
+
+      // 1: Calculate average.
+      smLine.push([ xData[i] , arrayAvg(periodArr)]);
+    }
+    return smLine;
+  }
 
 	/* Function that returns average of an array's values.
 	 *

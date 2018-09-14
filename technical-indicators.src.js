@@ -373,14 +373,26 @@
 	**/
 	function arrayAvg (arr) {
 		var sum = 0,
-			arrLength = arr.length,
-			i = arrLength;
-
+	        	arrLengthOfNonNullValues = 0,
+			i = arr.length;
+	   	        
 		while (i--) {
 			sum = sum + arr[i];
 		}
-
-		return (sum / arrLength);
+	    
+        	//count the non-null entries in the array
+		for (var j = 0; j < arr.length; j++) {
+		    if (arr[j] != null) {
+		        arrLengthOfNonNullValues++;
+		    }
+		}
+	    
+        	//if they are all null or the array is empty, then return null
+		if (arrLengthOfNonNullValues == 0) {
+		    return null;
+		}
+	    
+		return (sum / arrLengthOfNonNullValues);
 	}
 
 }(Highcharts));

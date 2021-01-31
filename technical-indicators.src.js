@@ -80,6 +80,13 @@
 			return EMA(xData, yData, periods);
 		}, 
 
+        /* Function using the global RSI function.
+         *
+         * @return: an array of RSI data.
+        **/
+        RSI: function (xData, yData, periods) {
+            return RSI(xData, yData, periods);
+        },
 		/* Function that uses the global linear function.
 		 *
 		 * @return : an array of EMA data
@@ -144,7 +151,8 @@
 	 *
 	 * @param yData : array of y variables.
 	 * @param xData : array of x variables.
-	 * @param periods : The amount of "days" to average from.
+	 * @param periods : An optional array of the MACD periods in the order
+     * [shortPeriod, longPeriod, signalPeriod ]
 	 * @return : An array with 3 arrays. (0 : macd, 1 : signalline , 2 : histogram) 
 	**/
 	function calcMACD (xData, yData, periods) {
@@ -160,8 +168,17 @@
 			yMACD = [],
 			signalLine = [],
 			histogram = [];
-
-
+        if (Array.isArray(periods)) {
+            if (periods.length >= 1) {
+                shortPeriod = periods[0] || 12;
+            }
+            if (periods.length >= 2) {
+                longPeriod = periods[1] || 26;
+            }
+            if (periods.length >=3 ) {
+                signalPeriod = periods[2] || 9;
+            }
+        }
 		// Calculating the short and long EMA used when calculating the MACD
 		shortEMA = EMA(xData, yData, shortPeriod);
 		longEMA = EMA(xData, yData, longPeriod);
@@ -367,6 +384,83 @@
 		}
 		return smLine;
 	}
+
+	/* Function based on the idea of Relative Strength Index.
+	 * @param yData : array of y variables.
+	 * @param xData : array of x variables.
+	 * @param periods : The amount of "days" to calculate for.
+	 * @return an array containing the RSI.
+	**/
+    function RSI (xData, yData, periods) {
+        var periodArr = [],
+            rsiLine = [],
+            length = yData.length,
+            pointStart = xData[0];
+        var rsiPeriod = periods || 14;
+        var gain = [], loss = [];
+        var prevGain = -1;
+        var prevLoss = -1;
+        var avgGain = -1;
+        var avgLoss = -1;
+		// Loop through the entire array.
+        for (var i = 0; i < length; ++i) {
+			// add points to the array.
+            periodArr.push(yData[i]);
+			// 1: Check if array is "filled" else create null point in line.
+			// 2: Calculate RSI value.
+			// 3: Remove first value.
+            if (i > 0) {
+                var curGain = 0, curLoss = 0;
+                var delta = yData[i] - yData[i - 1];
+                delta = parseFloat(delta.toFixed(6));
+                curGain = delta > 0 ? delta : 0;
+                curLoss = delta < 0 ? Math.abs(delta) : 0;
+                if (prevGain < 0 || prevLoss < 0) {
+                    if (gain.length < rsiPeriod) {
+                        gain.push(curGain);
+                    }
+                    if (loss.length < rsiPeriod) {
+                        loss.push(curLoss);
+                    }
+                    if (gain.length == rsiPeriod) {
+                        avgGain = 0;
+                        for (var j = 0; j < gain.length; ++j) {
+                            avgGain += gain[j];
+                        }
+                        avgGain /= rsiPeriod;
+                    }
+                    if (loss.length == rsiPeriod) {
+                        avgLoss = 0;
+                        for (var j = 0; j < loss.length; ++j) {
+                            avgLoss += loss[j];
+                        }
+                        avgLoss /= rsiPeriod;
+                    }
+                } else {
+                    avgGain = (prevGain * (rsiPeriod - 1) + curGain) / rsiPeriod;
+                    avgLoss = (prevLoss * (rsiPeriod - 1) + curLoss) / rsiPeriod;
+                }
+            }
+            if (rsiPeriod == periodArr.length) {
+                var rsiValue = 0;
+                if (avgGain == 0) {
+                    rsiValue = 0;
+                } else if (avgLoss == 0) {
+                    rsiValue = 100;
+                } else {
+                    rsiValue = 100 - (100 / (1 + (avgGain / avgLoss)));
+                }
+                rsiLine.push([ xData[i], rsiValue]);
+                periodArr.splice(0, 1);
+                prevGain = avgGain;
+                prevLoss = avgLoss;
+            } else {
+                rsiLine.push([xData[i], null]);
+            }
+        }
+        //console.log(JSON.stringify(rsiLine));
+        return rsiLine;
+    }
 
 	/* Function that returns average of an array's values.
 	 *
